@@ -31,7 +31,7 @@ app.use(session({
 		path: '/', 
 		httpOnly: true, 
 		secure: false, 
-		maxAge: new Date(Date.now() + (60 * 1000 * 30)) 
+		maxAge: 18000000
 	},
 	rolling: true
 }));

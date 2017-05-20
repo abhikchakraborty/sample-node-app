@@ -1,0 +1,166 @@
+<!-- views/login.ejs -->
+<% include header.ejs %>
+
+<% include navigation.ejs %>
+<div id="js_messages" style="display:none;"></div>
+<div class="container">
+
+	<div class="row" style="margin-left:2px;">
+		<div class="col-md-8">
+			<h3>Timeline</h3>
+			<hr class="form_hr"></hr>
+		</div>
+	</div>
+	
+	<div class="row" style="margin-left:2px;">
+		<div class="col-md-8">
+			<div class="widget-area no-padding blank">
+				<div class="status-upload">
+					<form>
+						<textarea placeholder="What are you doing right now?" id="newPost"></textarea>
+						<span id="submitArea">
+							<button type="submit" class="btn btn-success green" id="newPostButton"><i class="fa fa-share"></i> Post</button>
+						</span>
+					</form>
+				</div><!-- Status Upload  -->
+			</div><!-- Widget Area -->
+		</div>
+    </div>
+    <br />
+    
+	<div class="col-sm-8" id="postSection">
+		<% if (posts.data && posts.data.length > 0) { %>
+			<% for(var i=0; i < posts.data.length; i++) { %>
+				<div class="panel panel-white post panel-shadow">
+					<div class="post-heading">
+						<div class="pull-left image">
+							<img src="http://bootdey.com/img/Content/user_1.jpg" class="img-circle avatar" alt="user profile image">
+						</div>
+						<div class="pull-left meta">
+							<div class="title h5">
+								<a href="#" onclick="return false;"><b><%= currentUser.firstName+ ' '+ currentUser.lastName %></b></a>
+								made a post.
+							</div>
+							<h6 class="text-muted time"><%= posts.data[i].attributes.createdOn %></h6>
+						</div>
+					</div>
+					
+					<div class="post-description"> 
+						<p><%= posts.data[i].attributes.content %></p>
+						<div class="stats">
+							<a href="#" onclick="return false;" class="btn btn-default stat-item">
+								<% var c = posts.data[i].attributes.likes.length;%>
+								<i class="fa fa-thumbs-up icon"></i><%= c%>
+							</a>
+						</div>
+					</div>
+					
+					<div class="post-footer">
+					<% if (posts.data[i].attributes.comments && posts.data[i].attributes.comments.length > 0) { %>
+					<ul class="comments-list">
+						<% for(var c=0; c < posts.data[i].attributes.comments.length; c++) { %>
+						<li class="comment">
+							<a class="pull-left" href="#" onclick="return false;">
+								<img class="avatar" src="http://bootdey.com/img/Content/user_2.jpg" alt="avatar">
+							</a>
+							<div class="comment-body">
+								<div class="comment-heading">
+									<h4 class="user"><%= posts.data[i].attributes.comments[c].user.firstName+' '+ posts.data[i].attributes.comments[c].user.lastName %></h4>
+									<h5 class="text-muted time"><%=posts.data[i].attributes.comments[c].createdOn %></h5>
+								</div>
+								<p><%=posts.data[i].attributes.comments[c].content %></p>
+							</div>
+						</li>
+						<% } %>
+					</ul>
+					<% } %>
+					</div>
+				</div>
+			<% } %>
+		<% } %>
+    </div>
+</div>
+
+<% include footer.ejs %>
+
+<script type='text/javascript'>
+$(document).ready(function() {   
+
+	window.setInterval(
+		function() {
+			$("#app_auto_close_messages").fadeTo(700,0).slideUp(700, function() {
+				$(this).remove();
+			});
+		}, 
+	5000);
+
+	$('#newPostButton').click(function() {
+		var postContent = $('#newPost').val();
+		
+		if (postContent) {
+			var submitAreaContent = $('#submitArea').html();
+			
+			$.ajax({
+				type: 'POST',
+				url: '/posts/add',
+				data: {postContent:postContent},
+				beforeSubmit: function() {
+					$('#submitArea').html('posting....');
+				},
+				success: function(newPost) {
+					if (newPost && newPost.data) {
+						var currentName = '<%= currentUser.firstName+ ' '+ currentUser.lastName%>';
+						var html = '';
+						html += '<div class="panel panel-white post panel-shadow">';
+						html +=		'<div class="post-heading">';
+						html +=			'<div class="pull-left image">';
+						html +=				'<img src="http://bootdey.com/img/Content/user_1.jpg" class="img-circle avatar" alt="user profile image">';
+						html +=			'</div>';
+						html +=			'<div class="pull-left meta">';
+						html +=				'<div class="title h5">';	
+						html +=					'<a href="#" onclick="return false;"><b>'+currentName+'</b></a> made a post.';
+						html +=				'</div>';
+						html +=				'<h6 class="text-muted time">'+newPost.data.attributes.createdOn+'</h6>';
+						html +=			'</div>';
+						html +=		'</div>';
+						html +=		'<div class="post-description">';
+						html +=			'<p>'+newPost.data.attributes.content+'</p>';
+						html +=			'<div class="stats">';
+						html +=				'<a href="#" class="btn btn-default stat-item" onclick="return false;">';
+						html +=					'<i class="fa fa-thumbs-up icon"></i>0';
+						html +=				'</a>';
+						html +=			'</div>';
+						html +=		'</div>';
+						html +=	'</div>';
+					
+						$('#postSection').prepend(html).fadeIn('slow');
+						
+						$('#submitArea').html(submitAreaContent);
+						$('#newPost').val('')
+					} else {
+						var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
+							erroMessage = 'The post could not be added, please try again !!',
+							errorHTMLEnd = '</div>';  
+							
+						$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
+						$('#js_messages').show();
+						return false;
+					}
+				}
+			});
+			
+			return false;
+			
+		} else {
+			var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
+				erroMessage = 'Please add some content before posting !!',
+				errorHTMLEnd = '</div>';  
+				
+			$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
+			$('#js_messages').show();
+			return false;
+		}
+		
+	});
+});
+</script>

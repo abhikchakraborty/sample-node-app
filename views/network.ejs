@@ -1,0 +1,179 @@
+<!-- views/login.ejs -->
+<% include header.ejs %>
+
+<% include navigation.ejs %>
+<div id="js_messages" style="display:none;"></div>
+<div class="container">
+
+	<div class="row" style="margin-left:2px;">
+		<div class="col-md-8">
+			<h3>Network</h3>
+			<hr class="form_hr"></hr>
+		</div>
+	</div>
+	
+	<div class="col-sm-8" id="postSection">
+		<% if (posts.data && posts.data.length > 0) { %>
+			<% for(var i=0; i < posts.data.length; i++) { %>
+				<div class="panel panel-white post panel-shadow">
+					<div class="post-heading">
+						<div class="pull-left image">
+							<img src="http://bootdey.com/img/Content/user_1.jpg" class="img-circle avatar" alt="user profile image">
+						</div>
+						<div class="pull-left meta">
+							<div class="title h5">
+								<a href="#" onclick="return false;"><b><%= posts.data[i].attributes.firstName+ ' '+ posts.data[i].attributes.lastName %></b></a>
+								made a post.
+							</div>
+							<h6 class="text-muted time"><%= posts.data[i].attributes.createdOn %></h6>
+						</div>
+					</div>
+					
+					<div class="post-description"> 
+						<p><%= posts.data[i].attributes.content %></p>
+						<div class="stats" id="<%= posts.data[i].id%>">
+							<a href="#" onclick="return false;" class="btn btn-default stat-item">
+								<% var c = posts.data[i].attributes.likes.length;%>
+								
+								<%if (posts.data[i].attributes.likedByMe === 'yes') {%>
+									<i class="fa fa-thumbs-up icon liked like-icon" id="like-icon-<%= posts.data[i].id%>"></i><%= c%>
+								<%} else {%>
+									<i class="fa fa-thumbs-up icon like-icon" id="like-icon-<%= posts.data[i].id%>"></i><span id="like-count-<%= posts.data[i].id%>"><%= c%></span>
+								<% } %>
+							</a>
+						</div>
+					</div>
+					
+					<div class="post-footer">
+						<div class="input-group"> 
+							<input class="form-control" placeholder="Add a comment" type="text" id="comment-text-<%= posts.data[i].id%>">
+							<span class="input-group-addon">
+								<a href="#" class="post-comment" id="<%= posts.data[i].id%>"><i class="fa fa-edit"></i></a>  
+							</span>
+						</div>
+					
+						<ul class="comments-list" id="comments-list-<%= posts.data[i].id%>">
+						<% if (posts.data[i].attributes.comments && posts.data[i].attributes.comments.length > 0) { %>
+							<% for(var c=0; c < posts.data[i].attributes.comments.length; c++) { %>
+							<li class="comment">
+								<a class="pull-left" href="#" onclick="return false;">
+									<img class="avatar" src="http://bootdey.com/img/Content/user_2.jpg" alt="avatar">
+								</a>
+								<div class="comment-body">
+									<div class="comment-heading">
+										<h4 class="user"><%= posts.data[i].attributes.comments[c].user.firstName+' '+ posts.data[i].attributes.comments[c].user.lastName %></h4>
+										<h5 class="text-muted time"><%=posts.data[i].attributes.comments[c].createdOn %></h5>
+									</div>
+									<p><%=posts.data[i].attributes.comments[c].content %></p>
+								</div>
+							</li>
+							<% } %>
+						<% } %>
+						</ul>
+					</div>
+				</div>
+			<% } %>
+		<% } %>
+    </div>
+</div>
+
+<% include footer.ejs %>
+
+<script type='text/javascript'>
+$(document).ready(function() {   
+
+	window.setInterval(
+		function() {
+			$("#app_auto_close_messages").fadeTo(700,0).slideUp(700, function() {
+				$(this).remove();
+			});
+		}, 
+	5000);
+	
+	
+	$('.stats').click(function() {
+	
+		var postId = this.id;
+		
+		if ($('#like-icon-'+postId).hasClass('liked')) {
+			return false ;
+		} else {
+			
+			$.ajax({
+				type: 'POST',
+				url: '/likes/add',
+				data: {postId:postId},
+				success: function(newLike) {
+					if (newLike && newLike.data) {
+						$('#like-icon-'+postId).addClass('liked');
+						var totalLikes = parseInt($('#like-count-'+postId).html());
+						totalLikes += 1;
+						$('#like-count-'+postId).html(totalLikes);
+					} else {
+						var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
+							erroMessage = 'Opps, something wrong, please try again !!',
+							errorHTMLEnd = '</div>';  
+							
+						$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
+						$('#js_messages').show();
+					}
+				}
+			});
+			
+			return false;
+		} 
+	});
+
+	$('.post-comment').click(function() {
+		var postId = this.id;
+		var commentText = $('#comment-text-'+postId).val();
+		
+		if (commentText) {
+			$.ajax({
+				type: 'POST',
+				url: '/comments/add',
+				data: {postId:postId, commentText:commentText},
+				success: function(newComment) {
+					if (newComment && newComment.data) {
+						var currentName = '<%= currentUser.firstName+ ' '+ currentUser.lastName%>';
+						var html = '';
+						html += '<li class="comment">';
+						html += 	'<a class="pull-left" href="#" onclick="return false;">';
+						html +=			'<img class="avatar" src="http://bootdey.com/img/Content/user_2.jpg" alt="avatar">';
+						html +=		'</a>';
+						html +=		'<div class="comment-body">';
+						html +=			'<div class="comment-heading">';
+						html +=				'<h4 class="user">'+currentName+'</h4>';
+						html +=				'<h5 class="text-muted time">'+newComment.data.attributes.createdOn+'</h5>';
+						html +=			'</div>';
+						html +=			'<p>'+newComment.data.attributes.content+'</p>';
+						html +=		'</div>';
+						html +=	'</li>';
+						
+						$('#comments-list-'+postId).prepend(html).fadeIn('slow');
+						
+					} else {
+						var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
+							erroMessage = 'The comment could not be added, please try again !!',
+							errorHTMLEnd = '</div>';  
+							
+						$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
+						$('#js_messages').show();
+						return false;
+					}
+				}
+			});
+		} else {
+			var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
+				erroMessage = 'Please add some comment !!',
+				errorHTMLEnd = '</div>';  
+				
+			$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
+			$('#js_messages').show();
+			return false ;
+		}
+	});
+	
+	
+});
+</script>

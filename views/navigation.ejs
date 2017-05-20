@@ -1,0 +1,39 @@
+<div class="container">
+	<nav role="navigation" class="navbar navbar-default navbar-fixed-top navbar-inverse">
+		<div class="navbar-header">
+			<button type="button" data-target="#navbarCollapse" data-toggle="collapse" class="navbar-toggle">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#">Demo App</a>
+        </div>
+        <div id="navbarCollapse" class="collapse navbar-collapse">
+			<ul class="nav navbar-nav">
+				<% if (currentPage === 'timeline') { %>
+					<li class="active"><a href="#">Timeline</a></li>
+				<% } else { %>
+					<li><a href="/timeline">Timeline</a></li>
+				<% } %>
+				
+				<% if (currentPage === 'network') { %>
+					<li class="active"><a href="#">Network</a></li>
+				<% } else { %>
+					<li><a href="/network">Network</a></li>
+				<% } %>
+			</ul>
+			<ul class="nav navbar-nav navbar-right" style="margin-right:3px;">
+				<li class="dropdown">
+					<a data-toggle="dropdown" class="dropdown-toggle" href="#">Hello, <%= currentUser.firstName%><b class="caret"></b>
+					<ul role="menu" class="dropdown-menu">
+						<li><a href="/logout">Logout</a></li>
+					</ul>
+				</li>
+			</ul>
+		</div>
+	</nav>
+</div>
+<div style="margin-top:100px;"></div>
+        
+        

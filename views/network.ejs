@@ -48,7 +48,7 @@
 						<div class="input-group"> 
 							<input class="form-control" placeholder="Add a comment" type="text" id="comment-text-<%= posts.data[i].id%>">
 							<span class="input-group-addon">
-								<a href="#" class="post-comment" id="<%= posts.data[i].id%>"><i class="fa fa-edit"></i></a>  
+								<a href="javascript:void(0)" class="post-comment" id="<%= posts.data[i].id%>"><i class="fa fa-edit"></i></a>  
 							</span>
 						</div>
 					
@@ -117,6 +117,8 @@ $(document).ready(function() {
 						$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
 						$('#js_messages').show();
 					}
+					
+					return false;
 				}
 			});
 			
@@ -151,6 +153,8 @@ $(document).ready(function() {
 						html +=	'</li>';
 						
 						$('#comments-list-'+postId).prepend(html).fadeIn('slow');
+						$('#comment-text-'+postId).val('');
+						
 						
 					} else {
 						var errorHTMLStart = '<div class="alert alert-danger app-top-message" id="app_auto_close_messages"><a href="#" class="close" data-dismiss="alert">&times;</a>',
@@ -159,8 +163,10 @@ $(document).ready(function() {
 							
 						$('#js_messages').html(errorHTMLStart+erroMessage+errorHTMLEnd);
 						$('#js_messages').show();
-						return false;
+						$('#comment-text-'+postId).val('');
 					}
+					
+					return false;
 				}
 			});
 		} else {

@@ -196,7 +196,7 @@ module.exports = function(app, config) {
 							
 							comments: function(parallelCallback) {
 								app.models.comments.find({post:post.id})
-								.sort('createdOn asc')
+								.sort('createdOn desc')
 								.populate('user')
 								.exec(function(err, comments) {
 									if (err) return parallelCallback(err);

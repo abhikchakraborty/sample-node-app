@@ -8,7 +8,10 @@ var orm = new waterline(),
 	db = {};
 	
 var userList = [
-	{userName:'user1', password: 'user123', email: 'user1@gmail.com',firstName:'user1', lastName:'user1'}
+	{userName:'abhik', password: 'abhik123', email: 'abhik.chakraborty@gmail.com',firstName:'Abhik', lastName:'C'},
+	{userName:'ashish', password: 'ashish123', email: 'ashish@gmail.com',firstName:'Ashish', lastName:'R'},
+	{userName:'amrita', password: 'amrita123', email: 'amrita@gmail.com',firstName:'Amrita', lastName:'C'},
+	{userName:'vinuta', password: 'vinuta123', email: 'vinuta@gmail.com',firstName:'Vinuta', lastName:'B'}
 ];
 
 orm.loadCollection(User);
